@@ -1,0 +1,41 @@
+Summary,Issue Type,Description,Parent
+Display Searched Videos to Front-End,Epic,"Epic goal: Allow Parents and Children to search YouTube for videos and view results with role-based restrictions.",
+
+Parent: Search for YouTube Videos,Story,"As a Parent, I want to search for YouTube videos so that I can find content suitable for my child’s playlist.
+Acceptance Criteria:
+- User can type a keyword in a search bar.
+- API returns a list of video results with thumbnails, titles, and durations.
+- Parent can see results displayed on the dashboard or search page.",Display Searched Videos to Front-End
+
+Connect to YouTube API,Task,"Set up backend connection to YouTube API for search queries.",Parent: Search for YouTube Videos
+Create Search Input and Button,Task,"Frontend task: Create a search field and button to trigger API calls.",Parent: Search for YouTube Videos
+Display Video Results,Task,"Display video cards with thumbnails, titles, and durations on frontend.",Parent: Search for YouTube Videos
+Handle No Results/Error States,Task,"Add validation and error handling for search.",Parent: Search for YouTube Videos
+
+Parent: Add/Remove from Playlist,Story,"As a Parent, I want to add or remove videos from my child’s playlist so that I can control what they can watch.
+Acceptance Criteria:
+- Can click Add/Remove on video cards.
+- Playlist updates in real-time.
+- Only Parent can modify playlists.",Display Searched Videos to Front-End
+
+Build Playlist API Endpoints,Task,"Create backend endpoints for adding/removing videos from playlists.",Parent: Add/Remove from Playlist
+Frontend Playlist Controls,Task,"Add Add/Remove buttons and confirmation messages to UI.",Parent: Add/Remove from Playlist
+Auth Restriction (Parent Only),Task,"Ensure only Parent role can modify playlists.",Parent: Add/Remove from Playlist
+
+Parent: View Dashboard,Story,"As a Parent, I want to view a dashboard showing each child’s playlist count so that I can manage their viewing activity.",Display Searched Videos to Front-End
+Design Dashboard UI,Task,"Create layout displaying children with video counts and viewing stats.",Parent: View Dashboard
+Fetch Playlist Data,Task,"Fetch playlist and video count per child from backend.",Parent: View Dashboard
+Restrict Dashboard to Parent,Task,"Ensure dashboard is visible only to Parent role.",Parent: View Dashboard
+
+Child: View Approved Playlist,Story,"As a Child, I want to see my approved playlist so that I can easily watch allowed videos.",Display Searched Videos to Front-End
+Create My Playlist Page,Task,"Build playlist UI showing approved videos.",Parent: View Approved Playlist
+Fetch Approved Videos,Task,"Backend filter to return only approved videos.",Parent: View Approved Playlist
+Disable Add/Remove Buttons,Task,"Ensure Child cannot modify playlist items.",Parent: View Approved Playlist
+
+Child: Watch Approved Videos,Story,"As a Child, I want to watch approved videos from my playlist so that I can safely enjoy content.",Display Searched Videos to Front-End
+Integrate YouTube Player,Task,"Embed YouTube video player for viewing approved videos.",Parent: Watch Approved Videos
+Track Video Views,Task,"(Optional) Record number of views per video.",Parent: Watch Approved Videos
+
+Child: Restrict Unapproved Content,Story,"As a Child, I should not be able to search or view unapproved videos so that I stay within parent-approved content.",Display Searched Videos to Front-End
+Disable Search for Child Role,Task,"Hide or disable search functionality for Child users.",Parent: Restrict Unapproved Content
+Restrict Unapproved Video Access,Task,"Prevent Child from viewing or accessing unapproved content.",Parent: Restrict Unapproved Content

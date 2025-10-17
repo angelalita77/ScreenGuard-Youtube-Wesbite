@@ -1,0 +1,158 @@
+Got you… here is a clear… end to end task list and timeline to figure out feasibility… prove it with a prototype… and ship a front end that displays your curated parental control selections using YouTube
+
+# Week 1… Discovery and compliance gates
+
+**1… Define the use case and constraints**
+
+* Audience… ages… whether you are “directed to children under 13”… what data the site collects… what you store about viewing
+* Curation model… whitelist of channels… playlists… or explicit video IDs
+* Success criteria… latency budget… mobile first behavior… required player controls on or off
+
+**2… Policy checks that must pass before any build**
+
+* Read the YouTube API Services Terms and Developer Policies… confirm your use respects attribution… quota… and display rules… and that you are not replacing core YouTube experiences. Save the specific clauses you rely on. ([Google for Developers][1])
+* Decide whether embeds use the standard player or the IFrame Player API with JavaScript control… both are allowed with parameter rules. ([Google for Developers][2])
+* COPPA… if your site is directed to children under 13 or you have actual knowledge you collect personal information from a child… implement verifiable parental consent… updated FTC guidance tightened expectations in twenty twenty five… log your plan for consent… notices… and data minimization. ([Federal Trade Commission][3])
+
+**3… Technical feasibility spike**
+
+* Confirm that search and curation can filter to safe results using YouTube Data API parameters such as safeSearch… videoEmbeddable… and videoSyndicated… and that you can further whitelist by channel IDs or playlists you curate
+* Note… safeSearch strict reduces but does not guarantee removal of all mature content… you still curate your own whitelist. ([Google for Developers][4])
+
+**Deliverables by end of week 1**
+
+* One page policy memo… your COPPA posture and required notices
+* API checklist… exact parameters you will use… exact endpoints
+* Short risk register… policy… technical… and content risks
+
+# Week 2… Prototype the data layer and embed behavior
+
+**4… Obtain credentials and set up**
+
+* Create a Google Cloud project… enable YouTube Data API v3… create API key server side only for search and details… use OAuth only if you ever access user private data… not needed for public curation
+* Set base quotas and logging… note that search list costs quota per call… design caching accordingly. ([Google for Developers][4])
+
+**5… Build the curation service… backend**
+
+* Data model… Collection… items are video IDs with source channel… title… thumbnails… plus content flags from videos list contentDetails and contentRating… store ytAgeRestricted when present for an extra safety gate. ([Google for Developers][5])
+* Fetch pipeline
+
+  * search list with… type video… q terms for your themes… channelId if whitelisting… safeSearch strict… videoEmbeddable true… videoSyndicated true… maxResults tuned per topic… store video IDs and snippets. ([Google for Developers][4])
+  * videos list for those IDs… part contentDetails… status… to read age restriction and region restrictions… exclude anything age restricted or region blocked for your audience. ([Google for Developers][5])
+* Caching… refresh daily for collections… on write you always review manually before publishing
+
+**6… Build the embed component… frontend**
+
+* Use the IFrame Player API… parameters like enablejsapi… controls… modestbranding… origin… rel… cc_load_policy if you want captions default on… wire events for ready… state change… error. ([Google for Developers][6])
+* For additional privacy… consider YouTube’s Privacy Enhanced Mode for embedded players where appropriate. ([Google Help][7])
+* Handle error cases gracefully… playback restricted on certain sites or by rights owners… respect domain restrictions… set proper origin to reduce false blocks. ([Google Help][8])
+
+**Deliverables by end of week 2**
+
+* Working backend that can output curated JSON for a collection
+* Front end component that plays a supplied list of approved video IDs… with your desired controls… and logs no personal data beyond essential analytics
+
+# Week 3… Parental control UX and safety hardening
+
+**7… Parental controls on your site… not inside YouTube**
+
+* Build your own control panel that selects from your curated lists… never try to alter YouTube’s player to enforce restrictions beyond what the player supports
+* Gate the front end to only pull items from your whitelist and collections… never accept arbitrary user supplied IDs
+
+**8… Compliance and labeling**
+
+* Prominent disclosures about using YouTube content and any data practices… link to your privacy policy and parental consent flow when applicable… follow YouTube branding rules for badges and logos. ([Google for Developers][9])
+* Add a content review checklist for every new video… require two person approval when the site is child directed
+
+**9… QA scenarios**
+
+* Age restricted or region blocked video in your list… verify it is filtered out by your backend before it reaches the front end… based on contentDetails and status. ([Google for Developers][5])
+* Video becomes non embeddable after publication… verify error handling and automatic nightly recheck using video status… syndicated flag… and a fallback message. ([Google for Developers][4])
+* Accessibility… captions on by default for kids who benefit from text… player keyboard navigation… and screen reader labels
+* Performance… lazy load players… use thumbnails until play to avoid many iframes
+
+**Deliverables by end of week 3**
+
+* Parental control UI wired to curated feeds
+* QA checklist executed across desktop… iOS… Android
+
+# Week 4… Legal sign off… analytics… launch
+
+**10… Final legal review**
+
+* Reconfirm the experience does not collect personal information from children without verified parental consent… update notices as needed given recent FTC posture. ([Federal Trade Commission][10])
+
+**11… Analytics with privacy**
+
+* Aggregate events at the site level… do not log per child identifiers… avoid third party trackers that create profiles of children
+* If you must measure engagement… store only anonymized counters on your server
+
+**12… Launch and monitor**
+
+* Quota monitoring… alert when approaching limits… cache search responses… and prefer your own curated IDs over frequent search calls. ([Google for Developers][4])
+* Content drift checks… a nightly job revalidates every approved video against age restriction… region restriction… and embeddability
+
+---
+
+## Implementation checklist you can hand to engineering today
+
+**API calls**
+
+* Search list… required parts… snippet… with parameters… type equals video… q equals your topic… safeSearch equals strict… videoEmbeddable equals true… videoSyndicated equals true… maxResults sized to your use… regionCode set for your market. ([Google for Developers][4])
+* Videos list… parts contentDetails… status… to read contentRating ytAgeRestricted and any country restrictions… drop anything that fails. ([Google for Developers][5])
+
+**Front end embed**
+
+* IFrame Player API… enablejsapi equals one… origin set to your domain… modestbranding equals one… rel equals zero… controls equals one or zero per your UX… listen for onError and replace the video if blocked. ([Google for Developers][6])
+
+**Privacy choices**
+
+* Use Privacy Enhanced Mode when embedding via the standard embed flow where possible… especially on pages aimed at kids. ([Google Help][7])
+
+**Branding and attribution**
+
+* Follow YouTube branding guidelines… only approved marks and placements. ([Google for Developers][9])
+
+**COPPA actions if child directed**
+
+* Implement verifiable parental consent… provide a parent dashboard… minimize data… and document your lawful basis… align with the updated FTC guidance. ([Federal Trade Commission][3])
+
+---
+
+## Smartsheet friendly timeline… starting today… Friday October 17… twenty twenty five
+
+| Task name                                                                | Owner          | Start      | End        | Dependencies                | Output                                                                 |
+| ------------------------------------------------------------------------ | -------------- | ---------- | ---------- | --------------------------- | ---------------------------------------------------------------------- |
+| Define audience… curation model… success criteria                        | Product        | 2025-10-17 | 2025-10-20 | none                        | one pager scope                                                        |
+| Policy review… YouTube Terms… Dev Policies… Branding                     | Legal          | 2025-10-17 | 2025-10-21 | none                        | policy memo with green… yellow… red items ([Google for Developers][1]) |
+| COPPA assessment and consent plan                                        | Legal… Product | 2025-10-18 | 2025-10-22 | scope defined               | consent flow spec and notices ([Federal Trade Commission][3])          |
+| Enable YouTube Data API… keys… quotas                                    | Eng            | 2025-10-20 | 2025-10-20 | policy review               | cloud project and keys                                                 |
+| Backend spike… search list with strict filters                           | Eng            | 2025-10-20 | 2025-10-22 | keys issued                 | stored JSON of candidate videos ([Google for Developers][4])           |
+| Backend spike… videos list for contentDetails… filter out age restricted | Eng            | 2025-10-22 | 2025-10-23 | search spike                | filter pipeline and unit tests ([Google for Developers][5])            |
+| Curation console… approve or reject items                                | Eng            | 2025-10-23 | 2025-10-27 | pipeline ready              | internal admin UI                                                      |
+| Front end player component with IFrame API                               | Eng            | 2025-10-23 | 2025-10-27 | none                        | embeddable component with events ([Google for Developers][6])          |
+| Privacy Enhanced Mode evaluation                                         | Eng… Legal     | 2025-10-24 | 2025-10-24 | front end component         | decision note and setting ([Google Help][7])                           |
+| QA… safety scenarios… accessibility… mobile                              | QA             | 2025-10-27 | 2025-10-29 | backend and front end ready | QA report and fixes                                                    |
+| Final legal sign off                                                     | Legal          | 2025-10-29 | 2025-10-30 | QA complete                 | sign off checklist                                                     |
+| Launch… monitoring… nightly revalidation job                             | Eng            | 2025-10-31 | 2025-10-31 | sign off                    | live site and runbook                                                  |
+
+---
+
+## Quick answers to common questions you will face
+
+* Can I fully rely on safeSearch to filter adult content… no… you should maintain your own whitelist and reviewers… safeSearch is a helpful first filter only. ([Google for Developers][4])
+* Can I hide YouTube branding completely… no… modestbranding reduces but does not remove attribution… also follow branding rules. ([Google for Developers][2])
+* Can I build my own parental controls inside the YouTube player… no… you control access by curation and by your site UI… not by modifying the player which is governed by the Terms. ([Google for Developers][1])
+
+If you want… I can convert the timeline to a Smartsheet ready CSV with owners… dates… and dependencies… and a checklist you can paste into Jira stories… just say the word and I will generate it now.
+
+[1]: https://developers.google.com/youtube/terms/api-services-terms-of-service?utm_source=chatgpt.com "YouTube API Services Terms of Service"
+[2]: https://developers.google.com/youtube/player_parameters?utm_source=chatgpt.com "YouTube Embedded Players and Player Parameters"
+[3]: https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa?utm_source=chatgpt.com "Children's Online Privacy Protection Rule (\"COPPA\")"
+[4]: https://developers.google.com/youtube/v3/docs/search/list "Search: list  |  YouTube Data API  |  Google for Developers"
+[5]: https://developers.google.com/youtube/v3/docs/videos?utm_source=chatgpt.com "Videos | YouTube Data API"
+[6]: https://developers.google.com/youtube/iframe_api_reference?utm_source=chatgpt.com "YouTube Player API Reference for iframe Embeds"
+[7]: https://support.google.com/youtube/answer/171780?hl=en&utm_source=chatgpt.com "Embed videos & playlists - YouTube Help"
+[8]: https://support.google.com/youtube/answer/6301625?hl=en&utm_source=chatgpt.com "Restrict embedding - YouTube Help"
+[9]: https://developers.google.com/youtube/terms/branding-guidelines?utm_source=chatgpt.com "YouTube API Services - Branding Guidelines"
+[10]: https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-changes-childrens-privacy-rule-limiting-companies-ability-monetize-kids-data?utm_source=chatgpt.com "FTC Finalizes Changes to Children's Privacy Rule Limiting ..."
