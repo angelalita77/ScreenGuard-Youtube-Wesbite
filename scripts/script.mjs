@@ -37,47 +37,54 @@ document.getElementById('search-btn').addEventListener('click', doSearch);
 // q: The search query
 // type=video: Only return video results
 // maxResults=2: Limit the results to 2
-function doSearch(){
+function doSearch() {
 
     const query = document.getElementById('search-input').value;
     console.log(query);
+    const resultsContainer = document.getElementById('video-results');
+    console.log(resultsContainer);
+    resultsContainer.innerHTML = `<h2> Loading ...</h2>`; // Clear and show loading
+
+    const url = `${SEARCH_URL}?key=${API_KEY}&q=${query}&part=snippet&type=video&maxResults=${MAX_RESULTS}`
+    console.log(url);
 
 
-// fetch(url)
-//     .then(res => {
-//         if (!res.ok) {
-//             throw new Error(`HTTP error! status: ${res.status}`);
-//         }
-//         return res.json(); // Parse the JSON body
-//     })
-//     .then(data => {
-//         // Log the full JSON response to the console
-//         console.log("✅ Full JSON Response from YouTube API:", data);
-//         console.log(data.items.length);
+    fetch(url)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json(); // Parse the JSON body
+        })
+        .then(data => {
+            // Log the full JSON response to the console
+            console.log("✅ Full JSON Response from YouTube API:", data);
+            console.log(data.items.length);
 
-//         // Walk through the data to show the key pieces of information for the first video
-//         if (data.items && data.items.length > 0) {
-//             const firstVideo = data.items[0];
+            // Walk through the data to show the key pieces of information for the first video
+            if (data.items && data.items.length > 0) {
+                const firstVideo = data.items[0];
 
-//             console.log("--- Key Data for First Video ---");
-//             // 1. Video ID (needed for the player)
-//             console.log("Video ID:", firstVideo.id.videoId);
+                console.log("--- Key Data for First Video ---");
+                // 1. Video ID (needed for the player)
+                console.log(firstVideo);
+                console.log("Video ID:", firstVideo.id.videoId);
 
-//             // 2. Title and Description (from the snippet)
-//             console.log("Title:", firstVideo.snippet.title);
-//             console.log("Description:", firstVideo.snippet.description);
+                // 2. Title and Description (from the snippet)
+                console.log("Title:", firstVideo.snippet.title);
+                console.log("Description:", firstVideo.snippet.description);
 
-//             // 3. Thumbnail URL
-//             console.log("Thumbnail URL (Medium):", firstVideo.snippet.thumbnails.medium.url);
-//             console.log("------------------------------");
-//         } else {
-//             console.log("No videos found for the query.");
-//         }
-//     })
-//     .catch(error => {
-//         console.error("❌ An error occurred during the API request:", error);
-//         console.error("Please check your API Key, network connection, and YouTube API quota limit.");
-//     });
+                // 3. Thumbnail URL
+                console.log("Thumbnail URL (Medium):", firstVideo.snippet.thumbnails.medium.url);
+                console.log("------------------------------");
+            } else {
+                console.log("No videos found for the query.");
+            }
+        })
+        .catch(error => {
+            console.error("❌ An error occurred during the API request:", error);
+            console.error("Please check your API Key, network connection, and YouTube API quota limit.");
+        });
 }
 
 
